@@ -1,71 +1,103 @@
-function createMap(earthquakes) {
+var lightmap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 18,
+    id: "light-v10",
+    accessToken: API_KEY
+});
 
-  //make a lightmap layer
-  var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-      attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-      maxZoom: 18,
-      id: "light-v10",
-      accessToken: API_KEY
-  });
+var darkmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  maxZoom: 18,
+  id: "dark-v10",
+  accessToken: API_KEY
+});
 
-  // Create a baseMaps object to hold the lightmap layer
-  var baseMaps = {
-      "Light Map": lightmap
-  };
+// Create a baseMaps object
+var baseMaps = {
+  "Light Map": lightmap,
+  "Dark Map": darkmap
+};
 
-  //create an overlay layer to hold earthquake data
-  var overlayMaps = {
-      "Earthquakes": earthquakes
-  };
-
-  // Create the map object with options
   var myMap = L.map("mapid", {
       center: [19.89, 155.58],
       zoom: 2,
-      layers: [lightmap, earthquakes]
+      layers: [lightmap]
   });
 
-  //create a control layer 
-  L.control.layers(baseMaps, overlayMaps, {
-      collapsed: false
-      }).addTo(myMap);
+// Pass our map layers into our layer control
+// Add the layer control to the map
+L.control.layers(baseMaps, {
+}).addTo(myMap);
 
+d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson").then(data => {
+  L.geoJSON(data, {
+    pointToLayer: function (feature, latlng) {
+      return L.circleMarker(latlng);
+  },
+  style: getStyle,
+  onEachFeature: function(feature, layer) {
+    layer.bindPopup("<h3>Name:" + feature.properties.place + "</h3> <hr> <h3>Depth: " + feature.geometry.coordinates[2] + "</h3>" 
+                    + "<h3> Magnitude:" +feature.properties.mag + "</h3>");
+  }
+  }).addTo(myMap);
+
+  //this is my legend
+  var legend = L.control({
+    position: "bottomright"
+  });
+
+  legend.onAdd = function(){
+    var div = L.DomUtil.create("div", "legend");
+    var grades = ["default", -10, 10, 30, 50, 90];
+    var colors = ["black", "#5bc489", "#008d8c", "#007f86", "#1c6373", "#2a4858"];
+    for (var i=0; i < grades.length; i++) {
+      div.innerHTML += "<i style = 'background: "
+      + colors[i] 
+      + "'></i>"
+      + grades[i]
+      + (grades[i + 1] ? "&ndash;"
+      + grades[i + 1]
+      + "<br>" : "+");
+    }
+    return div;
+  };
+  legend.addTo(myMap);
+
+});
+
+function getStyle(feature) {
+  return {
+    fillOpacity: .8,
+    color: "white",
+    stroke: true,
+    weight: 1.5,
+    fillColor: getColor(feature.geometry.coordinates[2]),
+    radius: getRadius(feature.properties.mag)
+  }
 };
 
-function createMarkers(response) {
-  // make a variable to contain the data 
-  var data = response.features
-  console.log(data)
-  // Initialize an array to hold bike markers
-  var quakeMarkers = [];
-
-  // Loop through the stations array
-  for (var i=0; i < data.length; i++) {
-      var geometry = data[i].geometry.coordinates
-      var lon = geometry[0]
-      console.log(lon)
-      var lat = geometry[1]
-      var depth = geometry[3]
-      var placeName = data[i].properties.place
-      var mag = data[i].properties.mag
-      console.log(mag)
-
-    // For each station, create a marker and bind a popup with the station's name
-    quakeMarkers.push(L.circle(lat, lon, {
-      fillOpacity: .75,
-      color: "white",
-      fillColor: "purple",
-      radius: createMarkers(mag)
-      .bindPopup("<h3>" + placeName + "</h3> <hr> <h3>Depth: " + depth + "</h3>").addTo(myMap)
-    }));
-    // Add the marker to the quakeMarkers array
-    quakeMarkers.push(quakeMarker);
+function getColor(depth) {
+  switch(true) {
+    case depth >= 90:
+      return "#2a4858";
+      break;
+    case depth >= 50:
+      return "#1c6373";
+      break;
+    case depth >= 30:
+      return "#007f86";
+      break;
+    case depth >= 10:
+      return "#008d8c";
+      break;
+    case depth >= -10:
+      return "#5bc489";
+      break;
+    default: 
+      return "black";
   }
+};
 
-  // Create a layer group made from the bike markers array, pass it into the createMap function
-  createMap(L.layerGroup(quakeMarkers));
-}
-
-
-// Perform an API call to the Citi Bike API to get station information. Call createMarkers when complete
-d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson", createMarkers);
+function getRadius(magnitude) {
+  return magnitude * 2;
+};

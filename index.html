@@ -7,6 +7,14 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Leaflet Step-1</title>
 
+  <!-- Bring in our bootstrap stylesheet -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <!--Map Full Screen-->
+  <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+  <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
+
+
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
     integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
@@ -17,11 +25,26 @@
 </head>
 
 <body>
+  <div id="container-fluid">
+    <div class="row">
+      <div class="col-md-auto">
+        <img id="usgs", src="https://upload.wikimedia.org/wikipedia/commons/0/08/USGS_logo.png", alt="USGS Logo" width= 200px, height= 74px>
+      </div>
+      <div class="col">
+          <h1 class= "center">USGS Earthquake Map</h1>
+      </div>
+    </div>
+    <div class="col">
+    </div>
+  </div>
+  <p class="centerp">A real time, updating leaflet map of Earthquakes around the world. Magnitude indicated by size and color of each node.</p>
+  </div>
 
   <!-- The div that holds our map -->
-  <div id="mapid"></div>
-
-  <!-- Leaflet JS -->
+  <div id="mapcontainer">
+    <div id="mapid"></div>
+  </div>
+    <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
     integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
     crossorigin=""></script>

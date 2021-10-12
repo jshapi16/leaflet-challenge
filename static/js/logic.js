@@ -19,15 +19,11 @@ var baseMaps = {
 };
 
   var myMap = L.map("mapid", {
+      fullscreenControl: true,
       center: [19.89, 155.58],
-      zoom: 2,
+      zoom: 3,
       layers: [lightmap]
   });
-
-// Pass our map layers into our layer control
-// Add the layer control to the map
-L.control.layers(baseMaps, {
-}).addTo(myMap);
 
 d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson").then(data => {
   L.geoJSON(data, {
@@ -40,11 +36,12 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
                     + "<h3> Magnitude:" +feature.properties.mag + "</h3>");
   }
   }).addTo(myMap);
-
+  
   //this is my legend
   var legend = L.control({
-    position: "bottomright"
+    position: "topright"
   });
+
 
   legend.onAdd = function(){
     var div = L.DomUtil.create("div", "legend");
@@ -64,6 +61,10 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
   legend.addTo(myMap);
 
 });
+
+// or, add to an existing map:
+map.addControl(new L.Control.Fullscreen());
+
 
 function getStyle(feature) {
   return {

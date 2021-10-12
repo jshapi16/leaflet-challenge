@@ -32,8 +32,8 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
   },
   style: getStyle,
   onEachFeature: function(feature, layer) {
-    layer.bindPopup("<h3>Name:" + feature.properties.place + "</h3> <hr> <h3>Depth: " + feature.geometry.coordinates[2] + "</h3>" 
-                    + "<h3> Magnitude:" +feature.properties.mag + "</h3>");
+    layer.bindPopup("<h3>Name:" + " " + feature.properties.place + "</h3> <hr> <h3>Depth: " + feature.geometry.coordinates[2] + "</h3>" 
+                    + "<h3> Magnitude: " +feature.properties.mag + "</h3>");
   }
   }).addTo(myMap);
   
